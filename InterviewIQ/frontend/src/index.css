@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper text-ink font-body antialiased transition-colors duration-300;
+  }
+  html.dark body {
+    @apply bg-ink text-paper;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  ::selection {
+    @apply bg-signal/30;
+  }
+  :focus-visible {
+    outline: 2px solid #6E56CF;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto max-w-7xl px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-signal-gradient px-6 py-3
+    font-display text-sm font-semibold text-white shadow-lg shadow-signal-500/20
+    transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-signal-500/30
+    active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-line/60
+    bg-transparent px-6 py-3 font-display text-sm font-semibold text-ink
+    transition-all duration-200 hover:border-signal-500/60 hover:-translate-y-0.5
+    dark:text-paper dark:border-ink-line;
+  }
+
+  .card {
+    @apply rounded-2xl border border-paper-line bg-paper-surface
+    dark:border-ink-line dark:bg-ink-surface transition-colors duration-300;
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-signal-600 dark:text-signal-300;
+  }
+}
+
+@layer utilities {
+  .bg-grid {
+    background-image: linear-gradient(to right, #262A38 1px, transparent 1px),
+      linear-gradient(to bottom, #262A38 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .bg-grid-light {
+    background-image: linear-gradient(to right, #E4E5EC 1px, transparent 1px),
+      linear-gradient(to bottom, #E4E5EC 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+}

@@ -193,7 +193,18 @@ export default function Dashboard() {
 
         {/* Recent interview history */}
         <div>
-          <h3 className="mb-3 font-display text-base font-semibold">Recent interviews</h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-display text-base font-semibold">Recent interviews</h3>
+            {interviews.length > 0 && (
+              <Link
+                to="/history"
+                className="flex items-center gap-1 text-xs font-medium text-signal-600 hover:underline dark:text-cyan"
+              >
+                View all
+                <ArrowRight size={12} />
+              </Link>
+            )}
+          </div>
 
           {!isLoadingInterviews && interviews.length === 0 && (
             <div className="card p-6">
@@ -219,7 +230,11 @@ export default function Dashboard() {
           {!isLoadingInterviews && interviews.length > 0 && (
             <div className="space-y-3">
               {interviews.slice(0, 5).map((interview) => (
-                <div key={interview.id} className="card flex items-center gap-4 p-4">
+                <Link
+                  key={interview.id}
+                  to={`/results/${interview.id}`}
+                  className="card flex items-center gap-4 p-4 transition-colors hover:border-signal-500/40"
+                >
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-paper-line/60 font-display text-sm font-bold dark:bg-ink-line/60 ${scoreAccentClass(interview.overallScore)}`}
                   >
@@ -245,7 +260,8 @@ export default function Dashboard() {
                       )}
                     </div>
                   </div>
-                </div>
+                  <ArrowRight size={16} className="shrink-0 text-ink/30 dark:text-paper/30" />
+                </Link>
               ))}
             </div>
           )}

@@ -37,7 +37,7 @@ export default function HowItWorks() {
         </div>
 
         <div className="mt-14 grid gap-8 lg:grid-cols-4 lg:gap-6">
-          {STEPS.map((step, i) => (
+          {STEPS.map((step) => (
             <div key={step.number} className="relative">
               <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-0">
                 <span className="font-mono text-sm text-signal-600 dark:text-cyan">
@@ -49,9 +49,7 @@ export default function HowItWorks() {
               <p className="mt-2 text-sm leading-relaxed text-ink/65 dark:text-paper/65">
                 {step.description}
               </p>
-              {i < STEPS.length - 1 && (
-                <span className="mt-6 hidden h-px w-full bg-gradient-to-r from-paper-line to-transparent dark:from-ink-line lg:block" />
-              )}
+              <span className="mt-6 hidden h-px w-full bg-gradient-to-r from-paper-line to-transparent dark:from-ink-line lg:block" />
             </div>
           ))}
         </div>

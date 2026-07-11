@@ -9,6 +9,9 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import ResumeUpload from './pages/ResumeUpload';
 import Interview from './pages/Interview';
+import Results from './pages/Results';
+import History from './pages/History';
+import Analytics from './pages/Analytics';
 import ComingSoon from './pages/ComingSoon';
 
 export default function App() {
@@ -29,6 +32,9 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/upload-resume" element={<ResumeUpload />} />
             <Route path="/interview" element={<Interview />} />
+            <Route path="/results/:interviewId" element={<Results />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/analytics" element={<Analytics />} />
           </Route>
 
           <Route path="*" element={<ComingSoon title="Page not found" />} />

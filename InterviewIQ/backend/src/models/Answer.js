@@ -1,5 +1,16 @@
 import mongoose from 'mongoose';
 
+const categoryScoresSchema = new mongoose.Schema(
+  {
+    technical: { type: Number, min: 0, max: 10 },
+    communication: { type: Number, min: 0, max: 10 },
+    problemSolving: { type: Number, min: 0, max: 10 },
+    behavioral: { type: Number, min: 0, max: 10 },
+    confidence: { type: Number, min: 0, max: 10 },
+  },
+  { _id: false },
+);
+
 const evaluationSchema = new mongoose.Schema(
   {
     score: { type: Number, min: 0, max: 10 },
@@ -7,6 +18,12 @@ const evaluationSchema = new mongoose.Schema(
     weaknesses: { type: [String], default: [] },
     suggestedAnswer: { type: String, default: '' },
     confidence: { type: Number, min: 0, max: 100 },
+    // Per-answer breakdown used to compute the Results page's 5 skill
+    // cards (Technical/Communication/Problem Solving/Behavioral/Confidence).
+    categoryScores: {
+      type: categoryScoresSchema,
+      default: null,
+    },
   },
   { _id: false },
 );

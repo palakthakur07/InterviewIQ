@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Trophy, ThumbsUp, ThumbsDown, Target, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Trophy, ThumbsUp, ThumbsDown, Target, ArrowRight, CheckCircle2, FileBarChart2 } from 'lucide-react';
 
 function scoreAccent(score) {
   if (score === null || score === undefined) return { text: 'text-ink/40 dark:text-paper/40', bg: 'bg-paper-line dark:bg-ink-line' };
@@ -105,7 +105,15 @@ export default function InterviewCompleteCard({ interview }) {
         </div>
       )}
 
-      <div className="mt-6 flex justify-center">
+      <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+        <button
+          type="button"
+          onClick={() => navigate(`/results/${interview.id}`)}
+          className="btn-secondary"
+        >
+          <FileBarChart2 size={16} />
+          View full report
+        </button>
         <button type="button" onClick={() => navigate('/dashboard')} className="btn-primary">
           <Trophy size={16} />
           Back to dashboard

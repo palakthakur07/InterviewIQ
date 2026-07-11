@@ -6,6 +6,7 @@ import Interview from '../models/Interview.js';
 import { generateInterviewQuestions } from '../services/interviewGenerationService.js';
 import { evaluateAnswer } from '../services/interviewEvaluationService.js';
 import { isValidCompany } from '../utils/companyStyles.js';
+import { getHiringRecommendation } from '../utils/hiringRecommendation.js';
 import ApiError from '../utils/ApiError.js';
 
 function dedupe(strings, maxItems) {
@@ -338,6 +339,20 @@ export async function finishInterview(req, res, next) {
     // keeps the report generation to zero extra API requests.
     const suggestions = weaknesses.map((w) => `Practice: ${w}`);
 
+    // Average each of the 5 category axes across evaluated answers.
+    const CATEGORY_KEYS = ['technical', 'communication', 'problemSolving', 'behavioral', 'confidence'];
+    const skillScores = {};
+    CATEGORY_KEYS.forEach((key) => {
+      const values = evaluated
+        .map((a) => a.evaluation.categoryScores?.[key])
+        .filter((v) => typeof v === 'number' && !Number.isNaN(v));
+      skillScores[key] = values.length
+        ? Math.round((values.reduce((sum, v) => sum + v, 0) / values.length) * 10) / 10
+        : null;
+    });
+
+    const recommendation = getHiringRecommendation(overallScore);
+
     const durationSeconds = Math.max(
       0,
       Math.round((Date.now() - session.startedAt.getTime()) / 1000),
@@ -355,6 +370,8 @@ export async function finishInterview(req, res, next) {
       strengths,
       weaknesses,
       suggestions,
+      skillScores,
+      recommendation,
       startedAt: session.startedAt,
       completedAt: new Date(),
       durationSeconds,

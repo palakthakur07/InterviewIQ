@@ -50,6 +50,28 @@ const interviewSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  // Average category scores across all evaluated answers — powers the
+  // 5 skill cards on the Results page.
+  skillScores: {
+    technical: { type: Number, default: null },
+    communication: { type: Number, default: null },
+    problemSolving: { type: Number, default: null },
+    behavioral: { type: Number, default: null },
+    confidence: { type: Number, default: null },
+  },
+  recommendation: {
+    verdict: {
+      type: String,
+      enum: ['Strong Hire', 'Hire', 'Borderline', 'No Hire', null],
+      default: null,
+    },
+    explanation: { type: String, default: '' },
+  },
+  // Timestamp of the last time this report's PDF was generated/downloaded.
+  pdfGeneratedAt: {
+    type: Date,
+    default: null,
+  },
   startedAt: {
     type: Date,
     required: true,
@@ -80,6 +102,9 @@ interviewSchema.methods.toPublicJSON = function toPublicJSON() {
     strengths: this.strengths,
     weaknesses: this.weaknesses,
     suggestions: this.suggestions,
+    skillScores: this.skillScores,
+    recommendation: this.recommendation,
+    pdfGeneratedAt: this.pdfGeneratedAt,
     startedAt: this.startedAt,
     completedAt: this.completedAt,
     durationSeconds: this.durationSeconds,

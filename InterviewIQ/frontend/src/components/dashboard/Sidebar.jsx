@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileUp, MessagesSquare, X, TerminalSquare } from 'lucide-react';
+import { LayoutDashboard, FileUp, MessagesSquare, History, BarChart3, X, TerminalSquare } from 'lucide-react';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, end: true },
   { label: 'Upload resume', to: '/upload-resume', icon: FileUp },
   { label: 'Start interview', to: '/interview', icon: MessagesSquare },
+  { label: 'History', to: '/history', icon: History },
+  { label: 'Analytics', to: '/analytics', icon: BarChart3 },
 ];
 
 function NavItem({ item, onNavigate }) {
@@ -44,7 +46,7 @@ function SidebarContent({ onNavigate }) {
       </nav>
       <div className="border-t border-paper-line p-4 dark:border-ink-line">
         <p className="font-mono text-[11px] leading-relaxed text-ink/40 dark:text-paper/40">
-          Interview generation is coming in the next phase.
+          Every finished interview gets a full report and PDF export.
         </p>
       </div>
     </div>

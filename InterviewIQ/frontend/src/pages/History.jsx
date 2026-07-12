@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { History as HistoryIcon, ArrowRight } from 'lucide-react';
+import { History as HistoryIcon, ArrowRight, SearchX } from 'lucide-react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import EmptyState from '../components/dashboard/EmptyState';
 import HistoryCard from '../components/history/HistoryCard';
 import HistoryLoadingSkeleton from '../components/history/HistoryLoadingSkeleton';
+import HistoryFilterBar from '../components/history/HistoryFilterBar';
 import DeleteConfirmDialog from '../components/history/DeleteConfirmDialog';
 import {
   getHistoryRequest,
@@ -14,6 +15,8 @@ import {
 } from '../api/results';
 import { generateInterviewReportPdf } from '../utils/generatePdfReport';
 import { useAuth } from '../context/AuthContext';
+
+const DEFAULT_FILTERS = { query: '', company: 'all', scoreBand: 'all', date: '', sort: 'newest' };
 
 export default function History() {
   const navigate = useNavigate();
@@ -26,6 +29,7 @@ export default function History() {
   const [deletingId, setDeletingId] = useState(null);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [actionError, setActionError] = useState('');
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +50,45 @@ export default function History() {
       cancelled = true;
     };
   }, []);
+
+  const filteredInterviews = useMemo(() => {
+    let result = [...interviews];
+
+    if (filters.query.trim()) {
+      const q = filters.query.trim().toLowerCase();
+      result = result.filter((i) => i.company.toLowerCase().includes(q));
+    }
+    if (filters.company !== 'all') {
+      result = result.filter((i) => i.company === filters.company);
+    }
+    if (filters.scoreBand !== 'all') {
+      result = result.filter((i) => {
+        if (i.overallScore === null) return false;
+        if (filters.scoreBand === 'high') return i.overallScore >= 8;
+        if (filters.scoreBand === 'mid') return i.overallScore >= 5 && i.overallScore < 8;
+        return i.overallScore < 5;
+      });
+    }
+    if (filters.date) {
+      result = result.filter((i) => i.completedAt.slice(0, 10) === filters.date);
+    }
+
+    result.sort((a, b) => {
+      switch (filters.sort) {
+        case 'oldest':
+          return new Date(a.completedAt) - new Date(b.completedAt);
+        case 'highest':
+          return (b.overallScore ?? -1) - (a.overallScore ?? -1);
+        case 'lowest':
+          return (a.overallScore ?? 11) - (b.overallScore ?? 11);
+        case 'newest':
+        default:
+          return new Date(b.completedAt) - new Date(a.completedAt);
+      }
+    });
+
+    return result;
+  }, [interviews, filters]);
 
   async function handleDownload(interview) {
     setActionError('');
@@ -121,8 +164,27 @@ export default function History() {
         )}
 
         {!isLoading && !loadError && interviews.length > 0 && (
+          <HistoryFilterBar filters={filters} onChange={setFilters} />
+        )}
+
+        {!isLoading && !loadError && interviews.length > 0 && filteredInterviews.length === 0 && (
+          <div className="card p-6">
+            <EmptyState
+              icon={SearchX}
+              title="No interviews match your filters"
+              description="Try a different company, score range, or date, or clear your filters."
+              action={
+                <button type="button" onClick={() => setFilters(DEFAULT_FILTERS)} className="btn-secondary">
+                  Clear filters
+                </button>
+              }
+            />
+          </div>
+        )}
+
+        {!isLoading && !loadError && filteredInterviews.length > 0 && (
           <div className="space-y-3">
-            {interviews.map((interview) => (
+            {filteredInterviews.map((interview) => (
               <HistoryCard
                 key={interview.id}
                 interview={interview}

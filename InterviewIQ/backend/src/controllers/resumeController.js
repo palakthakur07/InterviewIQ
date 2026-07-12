@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import Resume from '../models/Resume.js';
 import parseResumeFile from '../services/resumeParserService.js';
 import ApiError from '../utils/ApiError.js';
+import { createNotification, NotificationEvents } from '../services/notificationService.js';
 
 // POST /api/resumes/upload  (protected, multipart/form-data, field name "resume")
 export async function uploadResume(req, res, next) {
@@ -29,6 +30,10 @@ export async function uploadResume(req, res, next) {
       projects: extracted.projects,
       education: extracted.education,
     });
+
+    // Fire-and-forget — never block the response on notification writes.
+    createNotification({ userId: req.user._id, ...NotificationEvents.resumeUploaded(resume) });
+    createNotification({ userId: req.user._id, ...NotificationEvents.aiAnalysisCompleted(resume) });
 
     res.status(201).json({
       success: true,

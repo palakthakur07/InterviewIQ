@@ -18,6 +18,13 @@ export default async function protect(req, res, next) {
       throw new ApiError(401, 'Not authorized — user no longer exists');
     }
 
+    // A mismatched tokenVersion means this token was issued before the most
+    // recent password change or "logout from all devices" — treat it the
+    // same way an expired token is treated.
+    if ((decoded.tv ?? 0) !== user.tokenVersion) {
+      throw new ApiError(401, 'Session expired, please log in again');
+    }
+
     req.user = user;
     next();
   } catch (err) {

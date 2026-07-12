@@ -8,6 +8,7 @@ import { evaluateAnswer } from '../services/interviewEvaluationService.js';
 import { isValidCompany } from '../utils/companyStyles.js';
 import { getHiringRecommendation } from '../utils/hiringRecommendation.js';
 import ApiError from '../utils/ApiError.js';
+import { createNotification, NotificationEvents } from '../services/notificationService.js';
 
 function dedupe(strings, maxItems) {
   const seen = new Set();
@@ -381,6 +382,8 @@ export async function finishInterview(req, res, next) {
     session.completedAt = new Date();
     session.updatedAt = new Date();
     await session.save();
+
+    createNotification({ userId: req.user._id, ...NotificationEvents.interviewCompleted(interview) });
 
     res.status(201).json({ success: true, interview: interview.toPublicJSON() });
   } catch (err) {

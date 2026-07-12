@@ -1,97 +1,255 @@
 # InterviewIQ
 
-AI-powered, resume-aware mock interview platform. Upload a resume, get a tailored
-technical interview, receive real-time scored feedback, and walk away with a
-hiring-style PDF report.
+**AI-powered, resume-aware mock interview platform.** Upload a resume, get a
+tailored technical interview generated from your real skills and projects,
+receive real-time AI-scored feedback question by question, and walk away with
+a hiring-style analytics dashboard and a downloadable PDF report.
 
-## Status
+Built as an end-to-end SDE portfolio project: authentication, file upload +
+parsing, a third-party AI integration, a full CRUD data model, an admin panel,
+and a production deployment — not just a CRUD-app tutorial clone.
 
-- [x] Frontend scaffold (Vite + React + Tailwind + React Router)
-- [x] Landing page (Navbar, Hero, Features, How it works, Company mode, Footer)
-- [x] Authentication (JWT, signup/login, protected routes)
-- [x] Dashboard & Resume Upload (parsing via PyMuPDF / python-docx)
-- [x] AI interview engine (Gemini 2.5 Flash) + Interview page
-- [ ] Results / report page (PDF export)
+---
 
-## Stack
+## Table of contents
 
-| Layer          | Technology                              |
-| -------------- | ---------------------------------------- |
-| Frontend       | React + Vite, Tailwind CSS, React Router, Axios |
-| Backend        | Node.js, Express.js                      |
-| Database       | MongoDB Atlas (free tier)                |
-| AI             | Google Gemini 2.5 Flash API              |
-| Resume parsing | PyMuPDF, python-docx (ai-service)        |
-| Auth           | JWT                                      |
-| Charts         | Recharts                                 |
-| PDF reports    | jsPDF                                    |
-| Deployment     | Vercel (frontend), Render (backend)      |
+- [Overview](#overview)
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Folder structure](#folder-structure)
+- [Installation](#installation)
+- [Environment variables](#environment-variables)
+- [How to run](#how-to-run)
+- [API reference](#api-reference)
+- [Screenshots](#screenshots)
+- [Deployment](#deployment)
+- [Future improvements](#future-improvements)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Project structure
+---
+
+## Overview
+
+InterviewIQ simulates a real technical interview loop:
+
+1. **Sign up** and **upload a resume** (PDF/DOCX) — a Python microservice
+   extracts skills, technologies, and project context.
+2. **Pick a company mode** (General, Google, Amazon, Microsoft, Atlassian)
+   and start an interview — Google's Gemini 2.5 Flash generates questions
+   tailored to the parsed resume and the selected company's interview style.
+3. **Answer each question**; every answer is scored and critiqued by the AI
+   in real time, with the option to retry a failed evaluation or save and
+   exit mid-interview.
+4. **Review results** — an overall score, per-skill breakdown, strengths/
+   weaknesses, and a hiring-style recommendation — then export a PDF report
+   or revisit it later from **History**.
+5. **Track progress** over time on the **Dashboard** and **Analytics** pages,
+   manage your **Profile** and account **Settings**, and get **notifications**
+   as resumes are parsed, interviews complete, and reports are generated.
+6. An **Admin dashboard** gives platform-wide visibility into usage: total
+   users, interviews, resumes, average scores, and the most-practiced company
+   mode.
+
+## Features
+
+- 🔐 JWT authentication with protected + role-based (user/admin) routes
+- 📄 Resume upload and parsing (PDF/DOCX → structured skills/tech/projects)
+- 🤖 AI-generated, resume-aware interview questions (Gemini 2.5 Flash)
+- ✅ Real-time AI answer evaluation with per-question scoring and feedback
+- 📊 Results, analytics, and full interview history with search/filter/sort
+- 🧾 Downloadable, hiring-style PDF interview reports (jsPDF)
+- 👤 Profile page with avatar upload and computed stats (best/average score,
+  companies practiced, skills detected)
+- ⚙️ Account settings: profile info, password change, logout-from-all-devices,
+  and interview preferences (default company, difficulty, question count)
+- 🔔 In-app notifications for resume upload, AI analysis, interview
+  completion, and report generation
+- 🛡️ Admin dashboard with platform-wide stats and Recharts visualizations
+- 🌗 Full dark/light mode
+- ⚡ Route-based code splitting, skeleton loaders, and toast notifications
+- 🧯 Dedicated 404 / 500 / network-error / session-expired / unauthorized
+  states, plus a React error boundary
+- ♿ Semantic HTML, ARIA labels/roles, and keyboard-accessible focus states
+
+## Tech stack
+
+| Layer          | Technology                                       |
+| -------------- | ------------------------------------------------- |
+| Frontend       | React 19 + Vite, Tailwind CSS, React Router, Axios, Recharts, jsPDF |
+| Backend        | Node.js, Express.js                               |
+| Database       | MongoDB Atlas (Mongoose)                          |
+| Auth           | JWT (with token-versioning for session invalidation) |
+| AI             | Google Gemini 2.5 Flash API                       |
+| Resume parsing | Python microservice (PyMuPDF, python-docx)        |
+| Deployment     | Vercel (frontend), Render (backend)                |
+
+## Folder structure
 
 ```
 InterviewIQ/
-├── frontend/     # React + Vite + Tailwind app
-├── backend/      # Express API — auth, resume upload/parsing orchestration
-├── ai-service/   # Python resume parser (PyMuPDF / python-docx), spawned by backend
+├── frontend/                # React + Vite + Tailwind SPA
+│   └── src/
+│       ├── api/              # Axios request modules, one per resource
+│       ├── components/       # Reusable UI, grouped by feature area
+│       ├── context/          # Auth, Theme, Toast, Notification providers
+│       ├── hooks/             # Shared hooks (e.g. useOnlineStatus)
+│       └── pages/             # Route-level page components
+├── backend/                  # Express REST API
+│   └── src/
+│       ├── controllers/       # Request handlers
+│       ├── middleware/        # Auth, validation, error/timeout handling
+│       ├── models/            # Mongoose schemas
+│       ├── routes/            # Route → controller wiring
+│       ├── services/          # AI/notification/business-logic services
+│       └── utils/              # Small stateless helpers
+├── ai-service/                # Python resume parser (spawned by backend)
+├── render.yaml                # Render deployment blueprint (backend)
 └── README.md
 ```
 
-## Getting started
+## Installation
 
-**1. AI service (Python resume parser dependencies)**
+Clone the repo, then install each part independently:
+
+```bash
+git clone https://github.com/<your-username>/InterviewIQ.git
+cd InterviewIQ
+```
+
+**AI service (Python resume parser)**
 ```bash
 cd ai-service
 pip install -r requirements.txt --break-system-packages
 ```
 No server to run — the backend spawns `resume_parser.py` as a subprocess.
 
-**2. Backend**
+**Backend**
 ```bash
 cd backend
-cp .env.example .env   # fill in MONGO_URI, JWT_SECRET, GEMINI_API_KEY
 npm install
-npm run dev
 ```
-Runs on http://localhost:5000. Health check: `GET /api/health`.
-Get a free Gemini API key at https://aistudio.google.com/apikey.
 
-**3. Frontend**
+**Frontend**
 ```bash
 cd frontend
-cp .env.example .env   # VITE_API_URL, defaults to http://localhost:5000/api
 npm install
+```
+
+## Environment variables
+
+Copy each `.env.example` to `.env` and fill in real values — **never commit
+a real `.env` file.**
+
+**`backend/.env`**
+```bash
+PORT=5000
+NODE_ENV=development
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=replace_with_a_long_random_string
+JWT_EXPIRES_IN=7d
+CLIENT_URL=http://localhost:5173
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
+```
+`CLIENT_URL` accepts a comma-separated list, useful when the frontend has
+both a production domain and Vercel preview deployments.
+
+Get a free MongoDB Atlas cluster at https://www.mongodb.com/cloud/atlas and a
+free Gemini API key at https://aistudio.google.com/apikey.
+
+**`frontend/.env`**
+```bash
+VITE_API_URL=http://localhost:5000/api
+```
+
+## How to run
+
+```bash
+# Terminal 1 — backend (http://localhost:5000)
+cd backend
+npm run dev
+
+# Terminal 2 — frontend (http://localhost:5173)
+cd frontend
 npm run dev
 ```
-Visit http://localhost:5173.
 
-## API reference (so far)
+Health check: `GET http://localhost:5000/api/health`.
 
-| Method | Route                  | Auth | Description                          |
-| ------ | ----------------------- | ---- | ------------------------------------- |
-| POST   | `/api/auth/signup`      | –    | Create account                        |
-| POST   | `/api/auth/login`       | –    | Log in, returns JWT                   |
-| GET    | `/api/auth/me`          | ✔    | Current user                          |
-| POST   | `/api/resumes/upload`   | ✔    | Upload + parse a PDF/DOCX resume      |
-| GET    | `/api/resumes`          | ✔    | List the current user's resumes       |
-| GET    | `/api/resumes/:id`      | ✔    | Get one resume's extracted data       |
-| POST   | `/api/interviews/start` | ✔    | Start a new interview (generates questions) |
-| GET    | `/api/interviews/active` | ✔   | Get the current in-progress session, if any |
-| GET    | `/api/interviews/history` | ✔  | List completed interview reports      |
-| GET    | `/api/interviews/session/:id` | ✔ | Get full session detail (resume/continue) |
-| POST   | `/api/interviews/session/:id/answer` | ✔ | Submit + evaluate an answer, advance |
-| POST   | `/api/interviews/session/:id/answer/:answerId/retry` | ✔ | Retry a failed evaluation |
-| PATCH  | `/api/interviews/session/:id/save-progress` | ✔ | Save a draft answer (Save & Exit) |
-| POST   | `/api/interviews/session/:id/finish` | ✔ | Finalize session into an Interview report |
-| GET    | `/api/interviews/:id`   | ✔    | Get one finished interview report     |
+## API reference
 
-## Design notes
+| Method | Route | Auth | Description |
+| ------ | ----- | :--: | ----------- |
+| POST | `/api/auth/signup` | – | Create an account |
+| POST | `/api/auth/login` | – | Log in, returns a JWT |
+| GET | `/api/auth/me` | ✔ | Current user |
+| POST | `/api/resumes/upload` | ✔ | Upload + parse a PDF/DOCX resume |
+| GET | `/api/resumes` | ✔ | List the current user's resumes |
+| GET | `/api/resumes/:id` | ✔ | Get one resume's extracted data |
+| POST | `/api/interviews/start` | ✔ | Start a new interview (generates questions) |
+| GET | `/api/interviews/active` | ✔ | Get the in-progress session, if any |
+| GET | `/api/interviews/history` | ✔ | List completed interview reports |
+| GET | `/api/interviews/session/:id` | ✔ | Get full session detail (resume/continue) |
+| POST | `/api/interviews/session/:id/answer` | ✔ | Submit + evaluate an answer, advance |
+| POST | `/api/interviews/session/:id/answer/:answerId/retry` | ✔ | Retry a failed evaluation |
+| PATCH | `/api/interviews/session/:id/save-progress` | ✔ | Save a draft answer |
+| POST | `/api/interviews/session/:id/finish` | ✔ | Finalize into an Interview report |
+| GET | `/api/interviews/:id` | ✔ | Get one finished interview report |
+| GET | `/api/results/:interviewId` | ✔ | Get a single result summary |
+| GET | `/api/history` | ✔ | List all interviews for History page |
+| DELETE | `/api/history/:id` | ✔ | Delete an interview record |
+| GET | `/api/report/:id` | ✔ | Full report data for PDF export |
+| POST | `/api/report/pdf` | ✔ | Record that a PDF was generated |
+| GET | `/api/profile` | ✔ | Profile + computed stats |
+| PUT | `/api/profile` | ✔ | Update profile fields |
+| POST | `/api/profile/avatar` | ✔ | Upload a profile photo |
+| PUT | `/api/settings` | ✔ | Update profile fields and/or preferences |
+| POST | `/api/settings/change-password` | ✔ | Change password |
+| POST | `/api/settings/logout-all-devices` | ✔ | Invalidate every active session |
+| GET | `/api/notifications` | ✔ | List notifications + unread count |
+| PUT | `/api/notifications/read` | ✔ | Mark one or all notifications read |
+| GET | `/api/admin/dashboard` | ✔ (admin) | Platform-wide stats and chart data |
 
-The landing page uses a dark-first "interview terminal" visual language:
-- Display font: Space Grotesk · Body: Inter · Data/mono: JetBrains Mono
-- Signal color: indigo-violet (#6E56CF) with a cyan accent (#33C3F0) and mint
-  (#34D399) for success/score states
-- The hero's signature element is a live-typing mock interview panel that
-  plays out a question → answer → score cycle, demonstrating the product's
-  actual mechanic instead of a generic screenshot
-- Full dark/light mode via a `ThemeContext` + Tailwind `class` strategy
+## Screenshots
+
+> _Add screenshots or a short demo GIF here before publishing —
+> Landing page, Dashboard, Interview flow, Results, and Admin dashboard are
+> good candidates._
+
+## Deployment
+
+**Backend → Render**
+- `render.yaml` at the repo root defines the service (root dir `backend`,
+  `npm install` / `npm start`, health check at `/api/health`).
+- Set `MONGO_URI`, `CLIENT_URL`, and `GEMINI_API_KEY` as environment
+  variables in the Render dashboard (they're marked `sync: false` in the
+  blueprint so Render prompts for them rather than committing values).
+
+**Frontend → Vercel**
+- Import the `frontend/` directory as the project root in Vercel.
+- `vercel.json` handles SPA rewrites so client-side routes don't 404 on
+  refresh.
+- Set `VITE_API_URL` to your deployed Render backend's `/api` URL.
+
+## Future improvements
+
+- WebSocket-based live notifications instead of polling
+- Voice-based interview answers with speech-to-text
+- Team/organization accounts for bootcamps and universities
+- Configurable question banks per company beyond the built-in five modes
+- Automated test suite (Jest/Vitest + Supertest) and CI pipeline
+
+## Contributing
+
+This is primarily a personal portfolio project, but issues and PRs are
+welcome:
+
+1. Fork the repo and create a feature branch
+2. Keep changes scoped and consistent with the existing code style
+3. Open a PR describing what changed and why
+
+## License
+
+[ISC](https://opensource.org/licenses/ISC) — free to use and adapt for your
+own learning or portfolio.

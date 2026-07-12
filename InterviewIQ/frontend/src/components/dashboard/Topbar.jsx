@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, LogOut, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Menu, ChevronDown, LogOut, User, Settings as SettingsIcon } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
+import NotificationBell from '../notifications/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
+
+const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
 export default function Topbar({ onMenuClick, title }) {
   const { user, logout } = useAuth();
@@ -23,6 +27,8 @@ export default function Topbar({ onMenuClick, title }) {
     .join('')
     .toUpperCase();
 
+  const avatarSrc = user?.avatarUrl ? `${API_ORIGIN}${user.avatarUrl}` : null;
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-paper-line bg-paper/90 px-4 backdrop-blur-md dark:border-ink-line dark:bg-ink/90 sm:px-6">
       <div className="flex items-center gap-3">
@@ -39,6 +45,7 @@ export default function Topbar({ onMenuClick, title }) {
 
       <div className="flex items-center gap-3">
         <ThemeToggle />
+        <NotificationBell />
 
         <div className="relative" ref={menuRef}>
           <button
@@ -46,8 +53,8 @@ export default function Topbar({ onMenuClick, title }) {
             onClick={() => setMenuOpen((v) => !v)}
             className="flex items-center gap-2 rounded-xl border border-paper-line px-2 py-1.5 pr-3 transition-colors hover:border-signal-500/50 dark:border-ink-line"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-signal-gradient text-xs font-semibold text-white">
-              {initials}
+            <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-signal-gradient text-xs font-semibold text-white">
+              {avatarSrc ? <img src={avatarSrc} alt={user?.name} className="h-full w-full object-cover" /> : initials}
             </span>
             <span className="hidden font-mono text-xs text-ink/70 dark:text-paper/70 sm:inline">
               {user?.name?.split(' ')[0]}
@@ -62,15 +69,22 @@ export default function Topbar({ onMenuClick, title }) {
                 <p className="truncate text-xs text-ink/50 dark:text-paper/50">{user?.email}</p>
               </div>
               <div className="my-1 h-px bg-paper-line dark:bg-ink-line" />
-              <button
-                type="button"
-                disabled
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-ink/40 dark:text-paper/40"
-                title="Profile settings coming soon"
+              <Link
+                to="/profile"
+                onClick={() => setMenuOpen(false)}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-ink/75 hover:bg-paper-line/40 dark:text-paper/75 dark:hover:bg-ink-line/40"
               >
                 <User size={15} />
                 Profile
-              </button>
+              </Link>
+              <Link
+                to="/settings"
+                onClick={() => setMenuOpen(false)}
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-ink/75 hover:bg-paper-line/40 dark:text-paper/75 dark:hover:bg-ink-line/40"
+              >
+                <SettingsIcon size={15} />
+                Settings
+              </Link>
               <button
                 type="button"
                 onClick={logout}

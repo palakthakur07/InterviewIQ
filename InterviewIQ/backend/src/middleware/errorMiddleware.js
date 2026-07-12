@@ -7,6 +7,12 @@ export function notFound(req, res, next) {
 
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
+  // The timeout middleware already sent a response — nothing left to do,
+  // just avoid the "headers already sent" crash.
+  if (req.timedOut || res.headersSent) {
+    return;
+  }
+
   // If a file was uploaded (e.g. by multer) but a later step failed
   // (DB down, auth failed, parsing failed), don't leave it orphaned on disk.
   if (req.file?.path) {
@@ -53,6 +59,17 @@ export function errorHandler(err, req, res, next) {
   if (err.name === 'TokenExpiredError') {
     statusCode = 401;
     message = 'Session expired, please log in again';
+  }
+
+  // Mongo/network-level failures that aren't already ApiErrors (e.g. Atlas
+  // cluster unreachable mid-request, DNS failure calling an external API).
+  if (['MongoNetworkError', 'MongooseServerSelectionError'].includes(err.name)) {
+    statusCode = 503;
+    message = 'Database is temporarily unavailable. Please try again shortly.';
+  }
+  if (['ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT'].includes(err.code)) {
+    statusCode = 502;
+    message = 'Could not reach an upstream service. Please try again.';
   }
 
   statusCode = statusCode && statusCode >= 400 ? statusCode : 500;

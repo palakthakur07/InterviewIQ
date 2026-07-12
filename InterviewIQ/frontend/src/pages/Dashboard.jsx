@@ -16,12 +16,15 @@ import DashboardLayout from '../components/dashboard/DashboardLayout';
 import StatCard from '../components/dashboard/StatCard';
 import EmptyState from '../components/dashboard/EmptyState';
 import CompanyModeSelector from '../components/dashboard/CompanyModeSelector';
+import QuickActions from '../components/dashboard/QuickActions';
+import WeeklyProgress from '../components/dashboard/WeeklyProgress';
 import CompanyBadge from '../components/interview/CompanyBadge';
 import { useAuth } from '../context/AuthContext';
 import { listResumesRequest } from '../api/resume';
 import { getActiveInterviewRequest, getInterviewHistoryRequest } from '../api/interview';
 
 const COMPANY_MODE_KEY = 'interviewiq_company_mode';
+const ALL_COMPANIES = ['general', 'google', 'amazon', 'microsoft', 'atlassian'];
 
 function scoreAccentClass(score) {
   if (score === null || score === undefined) return 'text-ink/40 dark:text-paper/40';
@@ -108,6 +111,9 @@ export default function Dashboard() {
       ) / 10
     : null;
 
+  const practicedCompanies = new Set(interviews.map((i) => i.company));
+  const recommendedCompany = ALL_COMPANIES.find((c) => !practicedCompanies.has(c)) || null;
+
   return (
     <DashboardLayout title="Dashboard">
       <div className="space-y-8">
@@ -144,6 +150,28 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Continue last interview */}
+        {hasActiveSession && (
+          <div className="card flex flex-col gap-3 border-signal-500/30 bg-signal-50/60 p-5 dark:bg-signal-500/10 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-signal-gradient text-white">
+                <RotateCcw size={17} />
+              </span>
+              <div>
+                <p className="text-sm font-semibold">You have an interview in progress</p>
+                <p className="text-xs text-ink/55 dark:text-paper/55">Pick up right where you left off.</p>
+              </div>
+            </div>
+            <button type="button" onClick={handleStartOrResume} className="btn-primary shrink-0">
+              Continue interview
+              <ArrowRight size={15} />
+            </button>
+          </div>
+        )}
+
+        {/* Quick actions */}
+        <QuickActions />
+
         {/* Stat cards */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatCard
@@ -179,6 +207,44 @@ export default function Dashboard() {
             isLoading={isLoadingResumes}
           />
         </div>
+
+        {/* Weekly progress + recommendations */}
+        {!isLoadingInterviews && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <WeeklyProgress interviews={interviews} />
+            <div className="card p-5">
+              <h3 className="mb-3 font-display text-base font-semibold">Upcoming recommendation</h3>
+              {recommendedCompany ? (
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-ink/70 dark:text-paper/70">
+                      You haven't practiced this company mode yet — try it next.
+                    </p>
+                    <div className="mt-2">
+                      <CompanyBadge company={recommendedCompany} />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCompanyModeChange(recommendedCompany);
+                      if (hasResume) navigate('/interview', { state: { resumeId: resumes[0].id, company: recommendedCompany } });
+                    }}
+                    disabled={!hasResume}
+                    className="btn-secondary shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Try it
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-ink/60 dark:text-paper/60">
+                  Nice work — you've tried every company mode at least once. Keep practicing to raise your scores.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Company mode */}
         <div>

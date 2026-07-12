@@ -4,6 +4,7 @@ import Question from '../models/Question.js';
 import Answer from '../models/Answer.js';
 import Resume from '../models/Resume.js';
 import ApiError from '../utils/ApiError.js';
+import { createNotification, NotificationEvents } from '../services/notificationService.js';
 
 /**
  * Loads a completed interview's full detail: the report itself, a light
@@ -135,6 +136,8 @@ export async function generateReportPdfMeta(req, res, next) {
 
     interview.pdfGeneratedAt = new Date();
     await interview.save();
+
+    createNotification({ userId: req.user._id, ...NotificationEvents.pdfGenerated(interview) });
 
     res.status(200).json({ success: true, interview: interview.toPublicJSON() });
   } catch (err) {

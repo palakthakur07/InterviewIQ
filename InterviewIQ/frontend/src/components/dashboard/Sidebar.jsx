@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileUp, MessagesSquare, History, BarChart3, X, TerminalSquare } from 'lucide-react';
+import { LayoutDashboard, FileUp, MessagesSquare, History, BarChart3, Settings, ShieldCheck, X, TerminalSquare } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, end: true },
@@ -7,6 +8,7 @@ const NAV_ITEMS = [
   { label: 'Start interview', to: '/interview', icon: MessagesSquare },
   { label: 'History', to: '/history', icon: History },
   { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+  { label: 'Settings', to: '/settings', icon: Settings },
 ];
 
 function NavItem({ item, onNavigate }) {
@@ -31,6 +33,8 @@ function NavItem({ item, onNavigate }) {
 }
 
 function SidebarContent({ onNavigate }) {
+  const { user } = useAuth();
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 px-5 font-display text-lg font-semibold">
@@ -43,6 +47,9 @@ function SidebarContent({ onNavigate }) {
         {NAV_ITEMS.map((item) => (
           <NavItem key={item.to} item={item} onNavigate={onNavigate} />
         ))}
+        {user?.role === 'admin' && (
+          <NavItem item={{ label: 'Admin', to: '/admin', icon: ShieldCheck }} onNavigate={onNavigate} />
+        )}
       </nav>
       <div className="border-t border-paper-line p-4 dark:border-ink-line">
         <p className="font-mono text-[11px] leading-relaxed text-ink/40 dark:text-paper/40">

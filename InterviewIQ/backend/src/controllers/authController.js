@@ -13,7 +13,7 @@ export async function signup(req, res, next) {
     }
 
     const user = await User.create({ name, email, password });
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.tokenVersion);
 
     res.status(201).json({
       success: true,
@@ -40,7 +40,7 @@ export async function login(req, res, next) {
       throw new ApiError(401, 'Invalid email or password');
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.tokenVersion);
 
     res.status(200).json({
       success: true,

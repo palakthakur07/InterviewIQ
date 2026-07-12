@@ -23,6 +23,61 @@ const userSchema = new mongoose.Schema({
     minlength: [8, 'Password must be at least 8 characters'],
     select: false, // never return password by default
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
+  college: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: [120, 'College name is too long'],
+  },
+  branch: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: [80, 'Branch is too long'],
+  },
+  graduationYear: {
+    type: Number,
+    default: null,
+  },
+  avatarUrl: {
+    type: String,
+    default: null,
+  },
+  preferences: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark'],
+      default: 'light',
+    },
+    defaultCompany: {
+      type: String,
+      enum: ['general', 'google', 'amazon', 'microsoft', 'atlassian'],
+      default: 'general',
+    },
+    interviewDifficulty: {
+      type: String,
+      enum: ['easy', 'medium', 'hard'],
+      default: 'medium',
+    },
+    defaultQuestionCount: {
+      type: Number,
+      min: 3,
+      max: 15,
+      default: 6,
+    },
+  },
+  // Bumped on password change / "logout from all devices" — every JWT
+  // carries the tokenVersion it was issued with, so bumping this instantly
+  // invalidates every previously-issued token (see authMiddleware.js).
+  tokenVersion: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -48,6 +103,12 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     id: this._id,
     name: this.name,
     email: this.email,
+    role: this.role,
+    college: this.college,
+    branch: this.branch,
+    graduationYear: this.graduationYear,
+    avatarUrl: this.avatarUrl,
+    preferences: this.preferences,
     createdAt: this.createdAt,
   };
 };

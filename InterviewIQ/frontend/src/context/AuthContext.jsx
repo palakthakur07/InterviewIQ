@@ -63,6 +63,23 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  // Any authenticated request that comes back 401 (expired/invalidated
+  // token) dispatches this — clear the session so ProtectedRoute redirects
+  // to /login. App.jsx separately routes the user to /session-expired.
+  useEffect(() => {
+    function handleSessionExpired() {
+      logout();
+    }
+    window.addEventListener('interviewiq:sessionExpired', handleSessionExpired);
+    return () => window.removeEventListener('interviewiq:sessionExpired', handleSessionExpired);
+  }, [logout]);
+
+  // Merges a partial or full user object into local state — used after
+  // profile/settings/avatar updates return the fresh user from the API.
+  const updateUser = useCallback((patch) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : patch));
+  }, []);
+
   const value = {
     user,
     token,
@@ -71,6 +88,7 @@ export function AuthProvider({ children }) {
     signup,
     login,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

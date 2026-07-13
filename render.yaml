@@ -4,7 +4,7 @@ services:
     runtime: node
     region: oregon
     plan: free
-    rootDir: backend
+    rootDir: InterviewIQ/backend 
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health

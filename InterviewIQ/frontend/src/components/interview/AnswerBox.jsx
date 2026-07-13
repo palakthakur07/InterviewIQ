@@ -21,7 +21,7 @@ export default function AnswerBox({
         onChange={(e) => onChange(e.target.value)}
         disabled={isSubmitting}
         placeholder="Type your answer here — be as specific as you'd be in a real interview."
-        className="w-full resize-y rounded-xl border border-paper-line bg-paper-surface px-4 py-3 text-sm leading-relaxed text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-signal-500 focus:ring-2 focus:ring-signal-500/20 disabled:opacity-60 dark:border-ink-line dark:bg-ink-surface2 dark:text-paper dark:placeholder:text-paper/30"
+        className="custom-scrollbar max-h-80 w-full resize-y rounded-xl border border-paper-line bg-paper-surface px-4 py-3 text-sm leading-relaxed text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-signal-500 focus:ring-2 focus:ring-signal-500/20 disabled:opacity-60 dark:border-ink-line dark:bg-ink-surface2 dark:text-paper dark:placeholder:text-paper/30"
       />
 
       <div className="mt-1.5 flex items-center justify-between">

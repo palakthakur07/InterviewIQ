@@ -87,7 +87,15 @@ export default function PreferencesForm({ preferences, onChange, onSave, isSavin
             min={3}
             max={15}
             value={preferences.defaultQuestionCount}
-            onChange={(e) => onChange({ ...preferences, defaultQuestionCount: Number(e.target.value) })}
+  onFocus={(e) => e.target.select()}
+  onChange={(e) => {
+    const raw = e.target.value;
+    onChange({ ...preferences, defaultQuestionCount: raw === '' ? '' : Number(raw) });
+  }}
+  onBlur={(e) => {
+    const clamped = Math.min(15, Math.max(3, Number(e.target.value) || 6));
+    onChange({ ...preferences, defaultQuestionCount: clamped });
+  }}
             className="w-full rounded-xl border border-paper-line bg-paper px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-signal-500 dark:border-ink-line dark:bg-ink"
           />
         </div>

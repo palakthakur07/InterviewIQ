@@ -233,9 +233,21 @@ Health check: `GET http://localhost:5000/api/health`.
 
 ## Screenshots
 
-> _Add screenshots or a short demo GIF here before publishing —
-> Landing page, Dashboard, Interview flow, Results, and Admin dashboard are
-> good candidates._
+**Landing page**
+<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
+
+
+**Features**
+<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
+
+
+**How it works**
+<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
+
+
+**Company modes**
+<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
+
 
 ## Deployment
 

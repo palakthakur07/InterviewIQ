@@ -231,24 +231,6 @@ Health check: `GET http://localhost:5000/api/health`.
 | PUT | `/api/notifications/read` | ✔ | Mark one or all notifications read |
 | GET | `/api/admin/dashboard` | ✔ (admin) | Platform-wide stats and chart data |
 
-## Screenshots
-
-**Landing page**
-<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
-
-
-**Features**
-<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
-
-
-**How it works**
-<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
-
-
-**Company modes**
-<img width="1409" height="880" alt="Screenshot 2026-07-17 114117" src="https://github.com/user-attachments/assets/8062a7a2-9457-4dc8-b0da-bbd98099d6f6" />
-
-
 ## Deployment
 
 **Backend → Render**

@@ -9,6 +9,13 @@ Built as an end-to-end SDE portfolio project: authentication, file upload +
 parsing, a third-party AI integration, a full CRUD data model, an admin panel,
 and a production deployment — not just a CRUD-app tutorial clone.
 
+🔗 **Live demo:** [https://interview-iq-virid.vercel.app](https://interview-iq-virid.vercel.app) ·
+Backend health check: [`/api/health`](https://interviewiq-api-ejq8.onrender.com/api/health)
+
+> The backend is hosted on Render's free tier, which sleeps after 15 minutes
+> of inactivity — the first request after a period of idle time can take
+> 30–60 seconds to respond while it wakes up. Subsequent requests are fast.
+
 ---
 
 ## Table of contents
@@ -108,6 +115,14 @@ InterviewIQ/
 └── README.md
 ```
 
+> **Note:** depending on how you cloned/downloaded this repo, everything
+> above may sit one level deeper, inside an outer `InterviewIQ/` folder (i.e.
+> `InterviewIQ/InterviewIQ/backend` instead of `InterviewIQ/backend`). If
+> that's the case for you, either flatten it by moving the inner folder's
+> contents up one level, or just remember to `cd` in one extra level — and
+> if you're deploying, make sure `render.yaml`'s `rootDir` and Vercel's
+> "Root Directory" setting match whichever layout you actually have.
+
 ## Installation
 
 Clone the repo, then install each part independently:
@@ -126,13 +141,13 @@ No server to run — the backend spawns `resume_parser.py` as a subprocess.
 
 **Backend**
 ```bash
-cd backend
+cd ../backend
 npm install
 ```
 
 **Frontend**
 ```bash
-cd frontend
+cd ../frontend
 npm install
 ```
 
@@ -157,6 +172,11 @@ both a production domain and Vercel preview deployments.
 
 Get a free MongoDB Atlas cluster at https://www.mongodb.com/cloud/atlas and a
 free Gemini API key at https://aistudio.google.com/apikey.
+
+> **MongoDB Atlas note:** in Atlas, go to **Network Access** and add
+> `0.0.0.0/0` ("Allow Access From Anywhere") to the IP Access List. Hosting
+> providers like Render don't have a fixed IP, so restricting to a single
+> address will cause connection failures in production.
 
 **`frontend/.env`**
 ```bash
@@ -211,26 +231,31 @@ Health check: `GET http://localhost:5000/api/health`.
 | PUT | `/api/notifications/read` | ✔ | Mark one or all notifications read |
 | GET | `/api/admin/dashboard` | ✔ (admin) | Platform-wide stats and chart data |
 
-## Screenshots
-
-> _Add screenshots or a short demo GIF here before publishing —
-> Landing page, Dashboard, Interview flow, Results, and Admin dashboard are
-> good candidates._
-
 ## Deployment
 
 **Backend → Render**
-- `render.yaml` at the repo root defines the service (root dir `backend`,
-  `npm install` / `npm start`, health check at `/api/health`).
+- `render.yaml` at the repo root defines the service, using Render's
+  Blueprint feature (`New → Blueprint`, pick this repo).
+- `rootDir` in `render.yaml` must point at wherever `backend/` actually sits
+  in your repo — a plain `backend` for a flat layout, or something like
+  `InterviewIQ/backend` if your checkout has the extra nested folder
+  mentioned above.
 - Set `MONGO_URI`, `CLIENT_URL`, and `GEMINI_API_KEY` as environment
-  variables in the Render dashboard (they're marked `sync: false` in the
-  blueprint so Render prompts for them rather than committing values).
+  variables in the Render dashboard when prompted (they're marked
+  `sync: false` in the blueprint so Render asks for them rather than reading
+  committed values).
+- Make sure MongoDB Atlas's Network Access list includes `0.0.0.0/0` —
+  otherwise Render's servers can't reach your database.
 
 **Frontend → Vercel**
-- Import the `frontend/` directory as the project root in Vercel.
+- Import the repo into Vercel and set **Root Directory** to wherever
+  `frontend/` actually sits (same nesting caveat as above).
 - `vercel.json` handles SPA rewrites so client-side routes don't 404 on
   refresh.
-- Set `VITE_API_URL` to your deployed Render backend's `/api` URL.
+- Set `VITE_API_URL` to your deployed Render backend's `/api` URL, e.g.
+  `https://interviewiq-api-ejq8.onrender.com/api`.
+- Once both are live, update `CLIENT_URL` on Render to your real Vercel URL
+  so CORS allows the deployed frontend to call the deployed backend.
 
 ## Future improvements
 

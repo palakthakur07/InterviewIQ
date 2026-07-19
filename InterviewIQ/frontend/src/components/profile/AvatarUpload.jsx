@@ -1,8 +1,6 @@
 import { useRef, useState } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 
-const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
-
 export default function AvatarUpload({ name, avatarUrl, onUpload, isUploading }) {
   const inputRef = useRef(null);
   const [localPreview, setLocalPreview] = useState(null);
@@ -22,7 +20,7 @@ export default function AvatarUpload({ name, avatarUrl, onUpload, isUploading })
     e.target.value = '';
   }
 
-  const resolvedSrc = localPreview || (avatarUrl ? `${API_ORIGIN}${avatarUrl}` : null);
+ const resolvedSrc = localPreview || avatarUrl || null;
 
   return (
     <div className="relative h-24 w-24 shrink-0">

@@ -1,4 +1,3 @@
-import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -43,10 +42,6 @@ app.use(requestTimeout());
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
-
-// Avatars are the only uploaded asset served back to the browser directly —
-// resumes stay server-side only, accessed via their parsed/JSON representation.
-app.use('/uploads/avatars', express.static(path.resolve('uploads', 'avatars')));
 
 app.get('/api/health', (req, res) => {
   res.json({

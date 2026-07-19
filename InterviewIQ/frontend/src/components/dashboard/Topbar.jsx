@@ -5,8 +5,6 @@ import ThemeToggle from '../ui/ThemeToggle';
 import NotificationBell from '../notifications/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
 
-const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
-
 export default function Topbar({ onMenuClick, title }) {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,7 +25,7 @@ export default function Topbar({ onMenuClick, title }) {
     .join('')
     .toUpperCase();
 
-  const avatarSrc = user?.avatarUrl ? `${API_ORIGIN}${user.avatarUrl}` : null;
+ const avatarSrc = user?.avatarUrl || null;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-paper-line bg-paper/90 px-4 backdrop-blur-md dark:border-ink-line dark:bg-ink/90 sm:px-6">

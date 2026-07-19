@@ -1,10 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
 import User from '../models/User.js';
 import Interview from '../models/Interview.js';
 import Resume from '../models/Resume.js';
 import ApiError from '../utils/ApiError.js';
-import { AVATAR_UPLOAD_DIR } from '../middleware/avatarUploadMiddleware.js';
 
 /**
  * Aggregates the stats shown on the Profile page — kept separate from
@@ -79,21 +76,11 @@ export async function uploadAvatar(req, res, next) {
       throw new ApiError(400, 'No image was uploaded. Attach a JPG, PNG, or WEBP under "avatar".');
     }
 
-    // Remove the previous avatar file from disk, if any, so orphans don't pile up.
-    if (req.user.avatarUrl) {
-      const oldFileName = path.basename(req.user.avatarUrl);
-      const oldPath = path.join(AVATAR_UPLOAD_DIR, oldFileName);
-      fs.unlink(oldPath).catch(() => {});
-    }
-
-    req.user.avatarUrl = `/uploads/avatars/${file.filename}`;
+    req.user.avatarUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
     await req.user.save();
 
     res.status(200).json({ success: true, user: req.user.toPublicJSON() });
   } catch (err) {
-    if (file?.path) {
-      fs.unlink(file.path).catch(() => {});
-    }
     next(err);
   }
 }

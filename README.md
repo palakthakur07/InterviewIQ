@@ -188,7 +188,7 @@ Expected result:
 
 ```
 PASS  tests/auth.test.js
-Tests: 14 passed, 14 total
+Tests: 13 passed, 13 total
 ```
 
 Tests live in `backend/tests/`. To run a single file or test by name:

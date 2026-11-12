@@ -1,22 +1,12 @@
 # InterviewIQ
 
-**AI-powered, resume-aware mock interview platform.** Upload a resume, get a
-tailored technical interview generated from your real skills and projects,
-receive real-time AI-scored feedback question by question, and walk away with
-a hiring-style analytics dashboard and a downloadable PDF report.
+AI-powered, resume-aware mock interview platform. Upload a resume, get a tailored technical interview generated from your real skills and projects, receive real-time AI-scored feedback question by question, and walk away with a hiring-style analytics dashboard and a downloadable PDF report.
 
-Built as an end-to-end SDE portfolio project: authentication, file upload +
-parsing, a third-party AI integration, a full CRUD data model, an admin panel,
-and a production deployment — not just a CRUD-app tutorial clone.
+Built as an end-to-end SDE portfolio project: authentication, file upload + parsing, a third-party AI integration, a full CRUD data model, an admin panel, automated API tests with CI, and a production deployment — not just a CRUD-app tutorial clone.
 
-🔗 **Live demo:** [https://interview-iq-virid.vercel.app](https://interview-iq-virid.vercel.app) ·
-Backend health check: [`/api/health`](https://interviewiq-api-ejq8.onrender.com/api/health)
+🔗 **Live demo:** https://interview-iq-virid.vercel.app · Backend health check: `/api/health`
 
-> The backend is hosted on Render's free tier, which sleeps after 15 minutes
-> of inactivity — the first request after a period of idle time can take
-> 30–60 seconds to respond while it wakes up. Subsequent requests are fast.
-
----
+> The backend is hosted on Render's free tier, which sleeps after 15 minutes of inactivity — the first request after a period of idle time can take 30–60 seconds to respond while it wakes up. Subsequent requests are fast.
 
 ## Table of contents
 
@@ -27,36 +17,24 @@ Backend health check: [`/api/health`](https://interviewiq-api-ejq8.onrender.com/
 - [Installation](#installation)
 - [Environment variables](#environment-variables)
 - [How to run](#how-to-run)
+- [Running tests](#running-tests)
 - [API reference](#api-reference)
-- [Screenshots](#screenshots)
 - [Deployment](#deployment)
 - [Future improvements](#future-improvements)
 - [Contributing](#contributing)
 - [License](#license)
 
----
-
 ## Overview
 
 InterviewIQ simulates a real technical interview loop:
 
-1. **Sign up** and **upload a resume** (PDF/DOCX) — a Python microservice
-   extracts skills, technologies, and project context.
-2. **Pick a company mode** (General, Google, Amazon, Microsoft, Atlassian)
-   and start an interview — Google's Gemini 2.5 Flash generates questions
-   tailored to the parsed resume and the selected company's interview style.
-3. **Answer each question**; every answer is scored and critiqued by the AI
-   in real time, with the option to retry a failed evaluation or save and
-   exit mid-interview.
-4. **Review results** — an overall score, per-skill breakdown, strengths/
-   weaknesses, and a hiring-style recommendation — then export a PDF report
-   or revisit it later from **History**.
-5. **Track progress** over time on the **Dashboard** and **Analytics** pages,
-   manage your **Profile** and account **Settings**, and get **notifications**
-   as resumes are parsed, interviews complete, and reports are generated.
-6. An **Admin dashboard** gives platform-wide visibility into usage: total
-   users, interviews, resumes, average scores, and the most-practiced company
-   mode.
+1. **Sign up and upload a resume** (PDF/DOCX) — a Python microservice extracts skills, technologies, and project context.
+2. **Pick a company mode** (General, Google, Amazon, Microsoft, Atlassian) and start an interview — Google's Gemini 2.5 Flash generates questions tailored to the parsed resume and the selected company's interview style.
+3. **Answer each question;** every answer is scored and critiqued by the AI in real time, with the option to retry a failed evaluation or save and exit mid-interview.
+4. **Review results** — an overall score, per-skill breakdown, strengths/weaknesses, and a hiring-style recommendation — then export a PDF report or revisit it later from History.
+5. **Track progress over time** on the Dashboard and Analytics pages, manage your Profile and account Settings, and get notifications as resumes are parsed, interviews complete, and reports are generated.
+
+An **Admin dashboard** gives platform-wide visibility into usage: total users, interviews, resumes, average scores, and the most-practiced company mode.
 
 ## Features
 
@@ -66,30 +44,28 @@ InterviewIQ simulates a real technical interview loop:
 - ✅ Real-time AI answer evaluation with per-question scoring and feedback
 - 📊 Results, analytics, and full interview history with search/filter/sort
 - 🧾 Downloadable, hiring-style PDF interview reports (jsPDF)
-- 👤 Profile page with avatar upload and computed stats (best/average score,
-  companies practiced, skills detected)
-- ⚙️ Account settings: profile info, password change, logout-from-all-devices,
-  and interview preferences (default company, difficulty, question count)
-- 🔔 In-app notifications for resume upload, AI analysis, interview
-  completion, and report generation
+- 👤 Profile page with avatar upload and computed stats (best/average score, companies practiced, skills detected)
+- ⚙️ Account settings: profile info, password change, logout-from-all-devices, and interview preferences (default company, difficulty, question count)
+- 🔔 In-app notifications for resume upload, AI analysis, interview completion, and report generation
 - 🛡️ Admin dashboard with platform-wide stats and Recharts visualizations
+- 🧪 Automated API test suite (Jest + Supertest) with GitHub Actions CI
 - 🌗 Full dark/light mode
 - ⚡ Route-based code splitting, skeleton loaders, and toast notifications
-- 🧯 Dedicated 404 / 500 / network-error / session-expired / unauthorized
-  states, plus a React error boundary
+- 🧯 Dedicated 404 / 500 / network-error / session-expired / unauthorized states, plus a React error boundary
 - ♿ Semantic HTML, ARIA labels/roles, and keyboard-accessible focus states
 
 ## Tech stack
 
-| Layer          | Technology                                       |
-| -------------- | ------------------------------------------------- |
-| Frontend       | React 19 + Vite, Tailwind CSS, React Router, Axios, Recharts, jsPDF |
-| Backend        | Node.js, Express.js                               |
-| Database       | MongoDB Atlas (Mongoose)                          |
-| Auth           | JWT (with token-versioning for session invalidation) |
-| AI             | Google Gemini 2.5 Flash API                       |
-| Resume parsing | Python microservice (PyMuPDF, python-docx)        |
-| Deployment     | Vercel (frontend), Render (backend)                |
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 19 + Vite, Tailwind CSS, React Router, Axios, Recharts, jsPDF |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas (Mongoose) |
+| Auth | JWT (with token-versioning for session invalidation) |
+| AI | Google Gemini 2.5 Flash API |
+| Resume parsing | Python microservice (PyMuPDF, python-docx) |
+| Testing / CI | Jest, Supertest, mongodb-memory-server, GitHub Actions |
+| Deployment | Vercel (frontend), Render (backend) |
 
 ## Folder structure
 
@@ -103,25 +79,21 @@ InterviewIQ/
 │       ├── hooks/             # Shared hooks (e.g. useOnlineStatus)
 │       └── pages/             # Route-level page components
 ├── backend/                  # Express REST API
-│   └── src/
-│       ├── controllers/       # Request handlers
-│       ├── middleware/        # Auth, validation, error/timeout handling
-│       ├── models/            # Mongoose schemas
-│       ├── routes/            # Route → controller wiring
-│       ├── services/          # AI/notification/business-logic services
-│       └── utils/              # Small stateless helpers
+│   ├── src/
+│   │   ├── controllers/       # Request handlers
+│   │   ├── middleware/        # Auth, validation, error/timeout handling
+│   │   ├── models/            # Mongoose schemas
+│   │   ├── routes/            # Route → controller wiring
+│   │   ├── services/          # AI/notification/business-logic services
+│   │   └── utils/              # Small stateless helpers
+│   └── tests/                 # Jest + Supertest API tests
 ├── ai-service/                # Python resume parser (spawned by backend)
+├── .github/workflows/         # GitHub Actions CI (runs backend tests)
 ├── render.yaml                # Render deployment blueprint (backend)
 └── README.md
 ```
 
-> **Note:** depending on how you cloned/downloaded this repo, everything
-> above may sit one level deeper, inside an outer `InterviewIQ/` folder (i.e.
-> `InterviewIQ/InterviewIQ/backend` instead of `InterviewIQ/backend`). If
-> that's the case for you, either flatten it by moving the inner folder's
-> contents up one level, or just remember to `cd` in one extra level — and
-> if you're deploying, make sure `render.yaml`'s `rootDir` and Vercel's
-> "Root Directory" setting match whichever layout you actually have.
+> **Note:** depending on how you cloned/downloaded this repo, everything above may sit one level deeper, inside an outer `InterviewIQ/` folder (i.e. `InterviewIQ/InterviewIQ/backend` instead of `InterviewIQ/backend`). If that's the case for you, either flatten it by moving the inner folder's contents up one level, or just remember to `cd` in one extra level — and if you're deploying, make sure `render.yaml`'s `rootDir` and Vercel's "Root Directory" setting match whichever layout you actually have.
 
 ## Installation
 
@@ -133,19 +105,23 @@ cd InterviewIQ
 ```
 
 **AI service (Python resume parser)**
+
 ```bash
 cd ai-service
 pip install -r requirements.txt --break-system-packages
 ```
+
 No server to run — the backend spawns `resume_parser.py` as a subprocess.
 
 **Backend**
+
 ```bash
 cd ../backend
 npm install
 ```
 
 **Frontend**
+
 ```bash
 cd ../frontend
 npm install
@@ -153,11 +129,11 @@ npm install
 
 ## Environment variables
 
-Copy each `.env.example` to `.env` and fill in real values — **never commit
-a real `.env` file.**
+Copy each `.env.example` to `.env` and fill in real values — never commit a real `.env` file.
 
 **`backend/.env`**
-```bash
+
+```env
 PORT=5000
 NODE_ENV=development
 MONGO_URI=your_mongodb_atlas_connection_string
@@ -167,19 +143,16 @@ CLIENT_URL=http://localhost:5173
 GEMINI_API_KEY=your_gemini_api_key
 GEMINI_MODEL=gemini-2.5-flash
 ```
-`CLIENT_URL` accepts a comma-separated list, useful when the frontend has
-both a production domain and Vercel preview deployments.
 
-Get a free MongoDB Atlas cluster at https://www.mongodb.com/cloud/atlas and a
-free Gemini API key at https://aistudio.google.com/apikey.
+`CLIENT_URL` accepts a comma-separated list, useful when the frontend has both a production domain and Vercel preview deployments.
 
-> **MongoDB Atlas note:** in Atlas, go to **Network Access** and add
-> `0.0.0.0/0` ("Allow Access From Anywhere") to the IP Access List. Hosting
-> providers like Render don't have a fixed IP, so restricting to a single
-> address will cause connection failures in production.
+Get a free MongoDB Atlas cluster at https://www.mongodb.com/cloud/atlas and a free Gemini API key at https://aistudio.google.com/apikey.
+
+> **MongoDB Atlas note:** in Atlas, go to **Network Access** and add `0.0.0.0/0` ("Allow Access From Anywhere") to the IP Access List. Hosting providers like Render don't have a fixed IP, so restricting to a single address will cause connection failures in production.
 
 **`frontend/.env`**
-```bash
+
+```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
@@ -197,10 +170,42 @@ npm run dev
 
 Health check: `GET http://localhost:5000/api/health`.
 
+## Running tests
+
+The backend has an automated API test suite built with **Jest** and **Supertest**. It covers the auth endpoints (`/api/auth/signup`, `/login`, `/me`) including negative and boundary cases: duplicate email, missing fields, invalid email, weak password, wrong password, and missing, malformed, expired and forged JWTs.
+
+**Prerequisites:** Node.js 18+ and an internet connection on the first run. The tests use `mongodb-memory-server`, which downloads a MongoDB binary once and caches it.
+
+No `.env` file, Atlas cluster or running server is needed. Tests run against a temporary in-memory database and never touch your real data.
+
+```bash
+cd backend
+npm install
+npm test
+```
+
+Expected result:
+
+```
+PASS  tests/auth.test.js
+Tests: 14 passed, 14 total
+```
+
+Tests live in `backend/tests/`. To run a single file or test by name:
+
+```bash
+npm test -- tests/auth.test.js
+npm test -- -t "wrong password"
+```
+
+### Continuous integration
+
+A GitHub Actions workflow (`.github/workflows/test.yml`) runs `npm ci` and `npm test` on every push and pull request. Results appear in the repo's **Actions** tab.
+
 ## API reference
 
 | Method | Route | Auth | Description |
-| ------ | ----- | :--: | ----------- |
+| --- | --- | --- | --- |
 | POST | `/api/auth/signup` | – | Create an account |
 | POST | `/api/auth/login` | – | Log in, returns a JWT |
 | GET | `/api/auth/me` | ✔ | Current user |
@@ -234,28 +239,18 @@ Health check: `GET http://localhost:5000/api/health`.
 ## Deployment
 
 **Backend → Render**
-- `render.yaml` at the repo root defines the service, using Render's
-  Blueprint feature (`New → Blueprint`, pick this repo).
-- `rootDir` in `render.yaml` must point at wherever `backend/` actually sits
-  in your repo — a plain `backend` for a flat layout, or something like
-  `InterviewIQ/backend` if your checkout has the extra nested folder
-  mentioned above.
-- Set `MONGO_URI`, `CLIENT_URL`, and `GEMINI_API_KEY` as environment
-  variables in the Render dashboard when prompted (they're marked
-  `sync: false` in the blueprint so Render asks for them rather than reading
-  committed values).
-- Make sure MongoDB Atlas's Network Access list includes `0.0.0.0/0` —
-  otherwise Render's servers can't reach your database.
+
+1. `render.yaml` at the repo root defines the service, using Render's Blueprint feature (New → Blueprint, pick this repo).
+2. `rootDir` in `render.yaml` must point at wherever `backend/` actually sits in your repo — a plain `backend` for a flat layout, or something like `InterviewIQ/backend` if your checkout has the extra nested folder mentioned above.
+3. Set `MONGO_URI`, `CLIENT_URL`, and `GEMINI_API_KEY` as environment variables in the Render dashboard when prompted (they're marked `sync: false` in the blueprint so Render asks for them rather than reading committed values).
+4. Make sure MongoDB Atlas's Network Access list includes `0.0.0.0/0` — otherwise Render's servers can't reach your database.
 
 **Frontend → Vercel**
-- Import the repo into Vercel and set **Root Directory** to wherever
-  `frontend/` actually sits (same nesting caveat as above).
-- `vercel.json` handles SPA rewrites so client-side routes don't 404 on
-  refresh.
-- Set `VITE_API_URL` to your deployed Render backend's `/api` URL, e.g.
-  `https://interviewiq-api-ejq8.onrender.com/api`.
-- Once both are live, update `CLIENT_URL` on Render to your real Vercel URL
-  so CORS allows the deployed frontend to call the deployed backend.
+
+1. Import the repo into Vercel and set **Root Directory** to wherever `frontend/` actually sits (same nesting caveat as above).
+2. `vercel.json` handles SPA rewrites so client-side routes don't 404 on refresh.
+3. Set `VITE_API_URL` to your deployed Render backend's `/api` URL, e.g. `https://interviewiq-api-ejq8.onrender.com/api`.
+4. Once both are live, update `CLIENT_URL` on Render to your real Vercel URL so CORS allows the deployed frontend to call the deployed backend.
 
 ## Future improvements
 
@@ -263,12 +258,11 @@ Health check: `GET http://localhost:5000/api/health`.
 - Voice-based interview answers with speech-to-text
 - Team/organization accounts for bootcamps and universities
 - Configurable question banks per company beyond the built-in five modes
-- Automated test suite (Jest/Vitest + Supertest) and CI pipeline
+- Expand test coverage to resume, interview and admin endpoints, plus frontend component tests
 
 ## Contributing
 
-This is primarily a personal portfolio project, but issues and PRs are
-welcome:
+This is primarily a personal portfolio project, but issues and PRs are welcome:
 
 1. Fork the repo and create a feature branch
 2. Keep changes scoped and consistent with the existing code style
@@ -276,5 +270,4 @@ welcome:
 
 ## License
 
-[ISC](https://opensource.org/licenses/ISC) — free to use and adapt for your
-own learning or portfolio.
+ISC — free to use and adapt for your own learning or portfolio.

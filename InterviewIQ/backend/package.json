@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,14 @@
     "multer": "^2.2.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.4",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "testTimeout": 60000
   }
 }

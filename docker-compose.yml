@@ -1,0 +1,14 @@
+services:
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+  api:
+    build: .
+    ports: ["5000:5000"]
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/interviewiq
+      JWT_SECRET: local-dev-secret
+      CLIENT_URL: http://localhost:5173
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    depends_on: [mongo]

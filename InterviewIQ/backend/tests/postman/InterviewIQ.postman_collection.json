@@ -1,0 +1,53 @@
+{
+  "info": { "name": "InterviewIQ Auth API", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "email", "value": "postman@example.com" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Signup",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/signup",
+        "body": { "mode": "raw", "raw": "{\"name\":\"Postman User\",\"email\":\"{{email}}\",\"password\":\"password123\"}" } },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('201 or 409 if already registered', () => pm.expect([201, 409]).to.include(pm.response.code));"
+      ] } }]
+    },
+    {
+      "name": "Login",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": { "mode": "raw", "raw": "{\"email\":\"{{email}}\",\"password\":\"password123\"}" } },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('status 200', () => pm.response.to.have.status(200));",
+        "pm.test('returns token', () => { const j = pm.response.json(); pm.expect(j.token).to.be.a('string'); pm.collectionVariables.set('token', j.token); });"
+      ] } }]
+    },
+    {
+      "name": "Login - wrong password",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": { "mode": "raw", "raw": "{\"email\":\"{{email}}\",\"password\":\"wrongpass1\"}" } },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('status 401', () => pm.response.to.have.status(401));"
+      ] } }]
+    },
+    {
+      "name": "Me - valid token",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/api/auth/me" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('status 200', () => pm.response.to.have.status(200));",
+        "pm.test('no password leaked', () => pm.expect(pm.response.json().user.password).to.be.undefined);"
+      ] } }]
+    },
+    {
+      "name": "Me - no token",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/me" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('status 401', () => pm.response.to.have.status(401));"
+      ] } }]
+    }
+  ]
+}

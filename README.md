@@ -48,7 +48,8 @@ An **Admin dashboard** gives platform-wide visibility into usage: total users, i
 - ⚙️ Account settings: profile info, password change, logout-from-all-devices, and interview preferences (default company, difficulty, question count)
 - 🔔 In-app notifications for resume upload, AI analysis, interview completion, and report generation
 - 🛡️ Admin dashboard with platform-wide stats and Recharts visualizations
-- 🧪 Automated API test suite (Jest + Supertest) with GitHub Actions CI
+- 🧪 Layered test suite: Jest + Supertest API tests, pytest for the resume parser, Playwright browser smoke tests, a Postman collection, a curl smoke script and a k6 load test, all wired into GitHub Actions CI
+- 🐳 Dockerfile and `docker-compose.yml` for a one-command local API + MongoDB
 - 🌗 Full dark/light mode
 - ⚡ Route-based code splitting, skeleton loaders, and toast notifications
 - 🧯 Dedicated 404 / 500 / network-error / session-expired / unauthorized states, plus a React error boundary
@@ -64,7 +65,8 @@ An **Admin dashboard** gives platform-wide visibility into usage: total users, i
 | Auth | JWT (with token-versioning for session invalidation) |
 | AI | Google Gemini 2.5 Flash API |
 | Resume parsing | Python microservice (PyMuPDF, python-docx) |
-| Testing / CI | Jest, Supertest, mongodb-memory-server, GitHub Actions |
+| Testing / CI | Jest, Supertest, mongodb-memory-server, pytest, Playwright, Postman, k6, curl/Bash, GitHub Actions |
+| Containers | Docker, Docker Compose |
 | Deployment | Vercel (frontend), Render (backend) |
 
 ## Folder structure
@@ -86,9 +88,16 @@ InterviewIQ/
 │   │   ├── routes/            # Route → controller wiring
 │   │   ├── services/          # AI/notification/business-logic services
 │   │   └── utils/              # Small stateless helpers
-│   └── tests/                 # Jest + Supertest API tests
+│   └── tests/
+│       ├── auth.test.js       # Jest + Supertest API tests
+│       ├── postman/           # Postman collection (import into Postman or run with newman)
+│       ├── k6/load.js         # k6 load test
+│       └── smoke.sh           # curl-based smoke test
+├── frontend/e2e/              # Playwright browser smoke tests (API mocked)
 ├── ai-service/                # Python resume parser (spawned by backend)
-├── .github/workflows/         # GitHub Actions CI (runs backend tests)
+│   └── tests/                 # pytest suite for the parser
+├── Dockerfile / docker-compose.yml  # API + MongoDB, one command (repo root)
+├── .github/workflows/         # GitHub Actions CI (all test suites)
 ├── render.yaml                # Render deployment blueprint (backend)
 └── README.md
 ```
@@ -170,37 +179,86 @@ npm run dev
 
 Health check: `GET http://localhost:5000/api/health`.
 
-## Running tests
+## Testing
 
-The backend has an automated API test suite built with **Jest** and **Supertest**. It covers the auth endpoints (`/api/auth/signup`, `/login`, `/me`) including negative and boundary cases: duplicate email, missing fields, invalid email, weak password, wrong password, and missing, malformed, expired and forged JWTs.
+| Layer | Tool | Where | What it checks |
+| --- | --- | --- | --- |
+| API | Jest + Supertest | `backend/tests/auth.test.js` | Auth endpoints: validation, duplicate email, wrong password, missing / malformed / expired / forged JWTs (13 tests) |
+| API (manual / CI) | Postman collection | `backend/tests/postman/` | Signup, login, wrong password, `/me` with and without a token |
+| Smoke | curl + Bash | `backend/tests/smoke.sh` | Health, signup, login, bad login, unauthenticated `/me` against a running server |
+| Browser | Playwright | `frontend/e2e/login.spec.js` | Login page, client-side validation, wrong credentials, successful login to `/dashboard` (API mocked) |
+| Unit / integration | pytest | `ai-service/tests/` | Resume parser: keyword matching, section splitting, education / project parsing, PDF and DOCX end to end |
+| Load | k6 | `backend/tests/k6/load.js` | 10 virtual users for 30 s against `/api/health` and `/api/auth/login`, thresholds on error rate and p95 latency |
 
-**Prerequisites:** Node.js 18+ and an internet connection on the first run. The tests use `mongodb-memory-server`, which downloads a MongoDB binary once and caches it.
+### API tests (Jest + Supertest)
 
-No `.env` file, Atlas cluster or running server is needed. Tests run against a temporary in-memory database and never touch your real data.
-
-```bash
-cd backend
-npm install
-npm test
-```
-
-Expected result:
-
-```
-PASS  tests/auth.test.js
-Tests: 13 passed, 13 total
-```
-
-Tests live in `backend/tests/`. To run a single file or test by name:
+**Prerequisites:** Node.js 18+ and an internet connection on the first run. The tests use `mongodb-memory-server`, which downloads a MongoDB binary once and caches it. No `.env` file, Atlas cluster or running server is needed.
 
 ```bash
-npm test -- tests/auth.test.js
-npm test -- -t "wrong password"
+cd InterviewIQ/backend
+npm ci
+npm test                        # run the suite
+npm test -- --coverage          # with a coverage report
+npm test -- -t "wrong password" # a single test by name
 ```
+
+Expected result: `Tests: 13 passed, 13 total`.
+
+### Browser smoke tests (Playwright)
+
+```bash
+cd InterviewIQ/frontend
+npm ci
+npx playwright install chromium
+npm run test:e2e
+```
+
+The tests mock the API with `page.route`, so no backend or database is needed. Playwright starts the Vite dev server itself.
+
+### Parser tests (pytest)
+
+```bash
+cd InterviewIQ/ai-service
+pip install -r requirements-dev.txt --break-system-packages
+pytest -v
+```
+
+A few tests are marked `xfail(strict=True)`: they document known parser defects that are tracked as GitHub Issues. When a defect is fixed its test starts passing, strict mode flags it, and the marker is removed.
+
+### Running with Docker, then smoke and load tests
+
+```bash
+docker compose up --build -d          # API on :5000, MongoDB on :27017
+curl -s localhost:5000/api/health     # {"success":true,"status":"ok","db":"connected",...}
+bash InterviewIQ/backend/tests/smoke.sh
+k6 run InterviewIQ/backend/tests/k6/load.js
+# or: BASE_URL=https://your-api.example.com k6 run InterviewIQ/backend/tests/k6/load.js
+```
+
+Manual smoke test with curl:
+
+```bash
+BASE=http://localhost:5000
+curl -s $BASE/api/health
+curl -s -X POST $BASE/api/auth/signup -H 'Content-Type: application/json' \
+  -d '{"name":"Test User","email":"me@example.com","password":"password123"}'
+curl -s -X POST $BASE/api/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"me@example.com","password":"password123"}'
+```
+
+Postman: import `backend/tests/postman/InterviewIQ.postman_collection.json`, set the `baseUrl` variable, and run the collection. The Login request stores the token for the `/me` request.
+
+### Latest results
+
+| Check | Result |
+| --- | --- |
+| Jest | 13 / 13 passing, coverage **[fill in]**% (statements) |
+| pytest | 22 passed, 3 expected failures (open parser bugs) |
+| k6 (10 VUs, 30 s, local Docker) | p95 **[fill in]** ms, error rate **[fill in]**% |
 
 ### Continuous integration
 
-A GitHub Actions workflow (`.github/workflows/test.yml`) runs `npm ci` and `npm test` on every push and pull request. Results appear in the repo's **Actions** tab.
+`.github/workflows/test.yml` runs on every push and pull request: backend Jest with coverage (report uploaded as an artifact), pytest for the parser, Playwright for the frontend, and a Docker job that builds the image, starts the stack with Docker Compose, then runs `smoke.sh` and the k6 load test. Results appear in the repo's **Actions** tab.
 
 ## API reference
 
@@ -259,6 +317,7 @@ A GitHub Actions workflow (`.github/workflows/test.yml`) runs `npm ci` and `npm 
 - Team/organization accounts for bootcamps and universities
 - Configurable question banks per company beyond the built-in five modes
 - Expand test coverage to resume, interview and admin endpoints, plus frontend component tests
+- Run the Postman collection in CI with newman
 
 ## Contributing
 

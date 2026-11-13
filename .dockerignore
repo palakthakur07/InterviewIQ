@@ -1,3 +1,5 @@
 **/node_modules
 **/.env
-frontend
+InterviewIQ/frontend
+**/__pycache__
+**/tests

@@ -223,7 +223,7 @@ pip install -r requirements-dev.txt --break-system-packages
 pytest -v
 ```
 
-A few tests are marked `xfail(strict=True)`: they document known parser defects that are tracked as GitHub Issues. When a defect is fixed its test starts passing, strict mode flags it, and the marker is removed.
+Regression tests cover three parser bugs found by this suite (issues #1 to #3).
 
 ### Running with Docker, then smoke and load tests
 
@@ -253,7 +253,7 @@ Postman: import `backend/tests/postman/InterviewIQ.postman_collection.json`, set
 | Check | Result |
 | --- | --- |
 | Jest | 13 / 13 passing, coverage **[fill in]**% (statements) |
-| pytest | 22 passed, 3 expected failures (open parser bugs) |
+| pytest | 25 / 25 passing |
 | k6 (10 VUs, 30 s, local Docker) | p95 **[fill in]** ms, error rate **[fill in]**% |
 
 ### Continuous integration

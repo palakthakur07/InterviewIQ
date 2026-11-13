@@ -4,9 +4,8 @@ Run from InterviewIQ/ai-service:
     pip install -r requirements-dev.txt --break-system-packages
     pytest -v
 
-Tests marked xfail(strict=True) document real defects (see docs/ISSUES.md).
-When you fix a bug, its test starts passing, strict mode reports that as a
-failure, and that is your cue to delete the xfail marker and close the issue.
+Regression tests for parser bugs #1 (short-term false positives), #2 (education year
+range) and #3 (project title/description split) are included below.
 """
 import json
 
@@ -95,7 +94,6 @@ def test_find_matches_empty_text_returns_empty_list():
     assert find_matches("", TECHNOLOGIES) == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG #1: 'C' and 'Go' match inside 'C++' and the English word 'go'")
 def test_find_matches_has_no_false_positives_for_short_terms():
     found = find_matches("Built tools in C++. Ready to go to market.", TECHNOLOGIES)
     assert "C++" in found
@@ -145,7 +143,6 @@ def test_parse_education_without_known_keywords_returns_empty_list():
     assert parse_education_section("") == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG #2: year range '2024 - 2028' returns the start year 2024")
 def test_parse_education_year_range_returns_graduation_year():
     result = parse_education_section("B.Tech in Electronics\nBPIT College\n2024 - 2028")
     assert result[0]["year"] == "2028"
@@ -164,7 +161,6 @@ def test_parse_projects_empty_section_returns_empty_list():
     assert parse_projects_section("", TECHNOLOGIES) == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG #3: a project's description line is split off as a separate project")
 def test_parse_projects_keeps_title_and_description_together():
     section = "InterviewIQ\nBuilt a REST API with Node.js and MongoDB."
     projects = parse_projects_section(section, TECHNOLOGIES)

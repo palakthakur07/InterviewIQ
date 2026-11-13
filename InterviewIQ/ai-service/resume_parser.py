@@ -51,14 +51,25 @@ def extract_text_from_docx(path):
     return "\n".join(parts)
 
 
+# Short terms that collide with ordinary text: "C" inside "C++" or "Vitamin C", "go" the verb.
+# These must match case-sensitively and must not be followed by + or # (so "C++" and "C#" don't count as "C").
+AMBIGUOUS_TERMS = {"C", "R", "Go"}
+
+
 def find_matches(text, bank):
-    """Case-insensitive whole-word-ish match of a keyword bank against text.
+    """Whole-word match of a keyword bank against text.
     Returns matches in the bank's original casing, deduped, longest-first
     so e.g. 'Node.js' is preferred over a bare 'Node' substring collision.
+    Ambiguous short terms (see AMBIGUOUS_TERMS) are matched case-sensitively.
     """
     found = []
     lower_text = text.lower()
     for term in sorted(bank, key=len, reverse=True):
+        if term in AMBIGUOUS_TERMS:
+            pattern = r"(?<![a-zA-Z0-9+#])" + re.escape(term) + r"(?![a-zA-Z0-9+#])"
+            if re.search(pattern, text):
+                found.append(term)
+            continue
         pattern = r"(?<![a-zA-Z0-9])" + re.escape(term.lower()) + r"(?![a-zA-Z0-9])"
         if re.search(pattern, lower_text):
             found.append(term)
@@ -121,6 +132,29 @@ def parse_skills_section(section_text):
     return cleaned
 
 
+def split_project_blocks(section_text):
+    """Fallback splitter when projects are not separated by blank lines.
+    A new project starts at a short, non-bullet line that does not end with a period
+    and that follows a bullet line or a sentence-ending line. A title followed by its
+    description stays in one block.
+    """
+    bullets = ("\u2022", "-", "*")
+    lines = [l.strip() for l in section_text.splitlines() if l.strip()]
+    blocks, current, prev = [], [], None
+    for line in lines:
+        is_bullet = line.startswith(bullets)
+        looks_like_title = (not is_bullet) and len(line) <= 80 and not line.endswith(".")
+        prev_ended = prev is not None and (prev.startswith(bullets) or prev.endswith("."))
+        if current and looks_like_title and prev_ended:
+            blocks.append("\n".join(current))
+            current = []
+        current.append(line)
+        prev = line
+    if current:
+        blocks.append("\n".join(current))
+    return blocks
+
+
 def parse_projects_section(section_text, full_text_technologies_bank):
     if not section_text:
         return []
@@ -129,7 +163,7 @@ def parse_projects_section(section_text, full_text_technologies_bank):
     # to splitting on lines that look like bullet/title starts.
     blocks = [b.strip() for b in re.split(r"\n\s*\n", section_text) if b.strip()]
     if len(blocks) <= 1:
-        blocks = [b.strip() for b in re.split(r"\n(?=[A-Z\u2022\-\*])", section_text) if b.strip()]
+        blocks = split_project_blocks(section_text)
 
     projects = []
     for block in blocks[:12]:  # sane upper bound
@@ -179,8 +213,9 @@ def parse_education_section(section_text):
                         institution = line[:120]
                         break
 
-        year_match = re.search(r"(19|20)\d{2}", block)
-        year = year_match.group(0) if year_match else None
+        # In a range like "2024 - 2028" the last year is the graduation year.
+        years = re.findall(r"(?:19|20)\d{2}", block)
+        year = years[-1] if years else None
 
         if degree or institution:
             education.append(

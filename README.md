@@ -1,8 +1,10 @@
 # InterviewIQ
 
+[![Tests](https://github.com/palakthakur07/InterviewIQ/actions/workflows/test.yml/badge.svg)](https://github.com/palakthakur07/InterviewIQ/actions/workflows/test.yml)
+
 AI-powered, resume-aware mock interview platform. Upload a resume, get a tailored technical interview generated from your real skills and projects, receive real-time AI-scored feedback question by question, and walk away with a hiring-style analytics dashboard and a downloadable PDF report.
 
-Built as an end-to-end SDE portfolio project: authentication, file upload + parsing, a third-party AI integration, a full CRUD data model, an admin panel, automated API tests with CI, and a production deployment — not just a CRUD-app tutorial clone.
+Built as an end-to-end SDE portfolio project: authentication, file upload + parsing, a third-party AI integration, a full CRUD data model, an admin panel, an automated test suite with CI, and a production deployment — not just a CRUD-app tutorial clone.
 
 🔗 **Live demo:** https://interview-iq-virid.vercel.app · Backend health check: `/api/health`
 

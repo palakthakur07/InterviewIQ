@@ -75,6 +75,8 @@ jobs:
           exit 1
       - name: curl smoke test
         run: bash InterviewIQ/backend/tests/smoke.sh
+      - name: Postman collection (newman)
+        run: npx --yes newman@6 run InterviewIQ/backend/tests/postman/InterviewIQ.postman_collection.json
       - uses: grafana/setup-k6-action@v1
       - name: k6 load test
         run: k6 run InterviewIQ/backend/tests/k6/load.js
